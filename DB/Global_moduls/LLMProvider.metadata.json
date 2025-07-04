@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"9cde730c26244a29b19b54d4bb6814d1","collectionName":"LLMProvider","type":"collection"}
