@@ -13,27 +13,65 @@ llmconfigcol = tenantDB["LLMConfig"]
 tokenlimitcol = tenantDB["TokenLimit"]
 tenantrulecol = tenantDB["TenantRule"]
 
-tenantID = input('Entet tenant ID:\n')
+tenantID = input('Entet tenant ID:')
 
-def tenant_resolver(tenant_id:str): 
+def resolve_tenant_context(tenant_id:str): 
     
+    pipeline = [
+        {'$match':{'tenantId':tenant_id}},
+        {'$lookup':{
+            'from': 'TokenLimit',
+            'localField':'tenantId',
+            'foreignField':'tenantId',
+            'as':'test'
+        }},
+        {'$unwind':'$test'},
+        {'$lookup':{
+            'from': 'TenantRule',
+            'localField':'tenantId',
+            'foreignField':'tenantId',
+            'as':'rule'                                        
+        }},
+        {'$unwind':'$rule'},
+        {'$project': {
+            '_id':0,
+            'test._id':0,
+            'test.role':0,
+            'test.llm':0,
+            'test.createdDate':0,
+            'rule._id':0,  
+        }}
+    ]
+    
+    
+    llmCon = list(llmconfigcol.aggregate(pipeline))
     tenant = collection.find_one({'tenantId':tenant_id})
     
     if not tenant:
-        print('tenant Id not found')
+        print('This ',tenant_id,' id is not found')
         return
     
-    print('mongourl------------->',tenant['mongoUrl'],'\n\n')   # for mongoURL
-
-    llmconfig = list(llmconfigcol.find({'tenantId':tenant_id}))
-    print('llm------------>',llmconfig[0],'\n\n') # for llmConfig
+    # print(tenant)
+    ruleID=llmCon[0]['rule']['globalRuleId']
+    globalrules= globalrule.find_one({'_id':ruleID})
     
-    tokenlimit = list(tokenlimitcol.find({'tenantId':tenant_id}))
-    print('tokenlimit======>',tokenlimit[0]['tokenLimit'],'\n\n')  # for Limit
     
-    ruleid = list(tenantrulecol.find({'tenantId':tenant_id}))
-    globalID =ruleid[0]['globalRuleId']
-    globalRule = globalrule.find_one({'_id':globalID})
     
-    print('rule-------------->',globalRule,'\n\n')
-tenant_resolver(tenantID)
+    mongourl = tenant['mongoUrl']
+    tokenlimit= llmCon[0]['test']['tokenLimit']
+    
+    llmCon[0].pop('test')
+    llmCon[0].pop('rule')
+    
+    
+    TenantContext={
+        "mongourl":mongourl,
+        'tokenlimit':tokenlimit,
+        'llmConfig':llmCon[0],
+        "globalrules":globalrules
+        }
+    
+    
+    return TenantContext    
+    
+print(resolve_tenant_context(tenantID))   #tenantid-----tenant-001
