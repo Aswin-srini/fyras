@@ -63,7 +63,6 @@ async def resolve_tenant_context(tenant_id:str):
     llmcon[0].pop('tenantToken')
     llmcon[0].pop('ruleID')
     
-
     Tenant_Context = TenantContext(
             tenantId=tenant_id,
             mongoDburl=mongourl,
