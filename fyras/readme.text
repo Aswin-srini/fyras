@@ -1,0 +1,9 @@
+global_models.py – Global Schema (shared across tenants)
+This module defines the global schema for the AI Firewall system.
+It includes shared collections such as user logins, tenant metadata, tier plans, global rules, and LLM provider configurations
+These models form the foundational layer for multi-tenant management, firewall versioning, and rule inheritance.
+
+tenant_models.py – Tenant-Specific Schema (isolated per tenant).
+This module defines tenant-level schema objects used for isolated LLM configurations,
+API key storage, custom rule overrides, user-role mapping, token quotas, and audit logs.
+Each tenant gets a separate MongoDB database using these models to ensure data isolation, customizability, and compliance.

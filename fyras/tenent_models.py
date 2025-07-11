@@ -30,7 +30,7 @@ class TenantUser(BaseModel):
 
 class TenantRule(BaseModel):
     tentantId:str
-    globalRuleId: str  # maps to GlobalRule
+    globalRuleId: object  # maps to GlobalRule
     enabled: bool
     overrideConfig: dict = {}
 
