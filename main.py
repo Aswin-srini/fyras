@@ -15,13 +15,6 @@ tenantDB = AIOEngine(client = server,database='tenant_module')
 
 app=FastAPI()  
 
-class TenantContext(BaseModel):
-    tenantId:str
-    mongoDburl:str
-    llmConfig:list
-    tokenLimit:list
-    enabledRules:list
-    tier:list
 
 @app.get("/tenant/{tenant_id}")
 async def resolve_tenant_context(tenant_id:str):
@@ -73,19 +66,8 @@ async def resolve_tenant_context(tenant_id:str):
         'globalrule':globalrule
         }
     
-    # print('admin:',tokenlimit['roles']['admin'])
-    
     llmcon[0].pop('tenantToken')
     llmcon[0].pop('ruleID')
-    
-    Tenant_Context = TenantContext(
-            tenantId=tenant_id,
-            mongoDburl=mongourl,
-            llmConfig=[llmcon[0]],
-            tokenLimit=[tokenlimit],
-            enabledRules=[rules],
-            tier=[tenant[0]['Tier']]
-    )
     
     Tenantcontext ={
         'mongoDburl':mongourl,
